@@ -6,6 +6,7 @@ from werkzeug.security import check_password_hash, generate_password_hash
 from bs4 import BeautifulSoup
 from functools import wraps
 import json
+from string import ascii_letters, whitespace, punctuation
 
 
 app = Flask(__name__)
@@ -49,16 +50,26 @@ def get_stock_data(symbol):
 def login_required(method):
     @wraps(method)
     def confirmation(*args, **kwargs):
-        if session.get("user_id") is None:
+        if session.get("uuid") is None:
             return redirect("/login")
         return method(*args, **kwargs)
     return confirmation
 
 
+def validate(str, arr):
+    if str == "":
+        return False
+
+    for char in str:
+        if char not in arr:
+            return False
+    return True
+
+
 @app.route("/")
 @login_required
 def index():
-    query_users = Users.query.filter_by(uuid=session.get("user_id")).one()
+    query_users = Users.query.filter_by(uuid=session.get("uuid")).one()
 
     stocks = json.loads(query_users.stocks)
 
@@ -72,10 +83,19 @@ def index():
 @app.route("/login", methods=["GET", "POST"])
 def login():
     if request.method == "GET":
-        return render_template("login.html")
+        return render_template("login.html", data=None)
     elif request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
+        username = request.form.get("username").strip()
+        password = request.form.get("password").strip()
+
+        users_query = Users.query.filter_by(username=username, password=generate_password_hash(password))
+
+        if users_query.count() != 1:
+            return render_template("login.html", username=username, password=password, message="Account information is invalid.")
+
+        session["uuid"] = users_query.uuid
+
+        return redirect("/")
 
 
 @app.route("/register")
@@ -83,9 +103,7 @@ def register():
     if request.method == "GET":
         return render_template("register.html")
     elif request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        retype_password = request.form.get("retype_password")
+        pass
 
 
 @app.route("/add")
