@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block page_name %}
+    Register
+{% endblock %}
+
+{% block body %}
+    <div class="form-container">
+        <form class="fill-out">
+            <div class="form-question">
+                <input class="form-input" name="username" placeholder="Username" autocomplete="off" autofocus type="text">
+            </div>
+
+            <div class="form-question">
+                <input class="form-input" name="password" placeholder="Password" autocomplete="off" type="text">
+            </div>
+
+            <div class="form-question">
+                <input class="form-input" name="retype_password" placeholder="Retype Password" autocomplete="off" type="text">
+            </div>
+
+            <button class="form-button" type="submit">Register</button>
+        </form>
+    </div>
+{% endblock %}
