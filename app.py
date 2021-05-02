@@ -78,7 +78,7 @@ def after_request(response):
 @app.route("/")
 @login_required
 def index():
-    query_users = Users.query.filter_by(uuid=session.get("uuid")).one()
+    query_users = Users.query.filter_by(uuid=session["uuid"]).one()
 
     stocks = json.loads(query_users.stocks)
 
@@ -86,7 +86,7 @@ def index():
     for stock in stocks:
         stock_data.append(get_stock_data(stock))
 
-    return render_template("index.html", stocks=stocks, stock_count=len(stocks))
+    return render_template("index.html", stocks=stock_data, stock_count=len(stocks))
 
 
 @app.route("/login", methods=["GET", "POST"])
@@ -178,10 +178,32 @@ def register():
         return redirect("/login")
 
 
-@app.route("/add")
+@app.route("/add", methods=["GET", "POST"])
 @login_required
 def add():
-    pass
+    if request.method == "GET":
+        return render_template("add.html")
+
+    if request.method == "POST":
+        symbol = request.form.get("symbol").strip()
+
+        try:
+            get_stock_data(symbol)
+
+            user = Users.query.filter_by(uuid=session["uuid"]).one()
+            stocks = json.loads(user.stocks)
+
+            if symbol in stocks:
+                return render_template("add.html", message=f"You are already tracking the stock: {symbol}.")
+
+            stocks.append(symbol)
+            user.stocks = json.dumps(stocks)
+            db.session.commit()
+
+        except AttributeError:
+            return render_template("add.html", message="Stock symbol is not a valid symbol.")
+
+        return redirect("/")
 
 
 @app.route("/remove")
