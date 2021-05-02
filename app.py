@@ -86,59 +86,96 @@ def index():
     for stock in stocks:
         stock_data.append(get_stock_data(stock))
 
-    return render_template("index.html", stock_data=stock_data)
+    return render_template("index.html", stocks=stocks, stock_count=len(stocks))
 
 
 @app.route("/login", methods=["GET", "POST"])
 def login():
+    """This function controls the login page. It displays the login.html page and takes in data from the login form. The
+    function will validate the username and password by: checking if the username is already in the database and
+    validating the password by comparing the hashing of the password. The request methods are GET and POST.
+
+    :return: None
+    """
     if request.method == "GET":
-        return render_template("login.html", data=None)
+        # display the login.html page
+        return render_template("login.html")
+
     elif request.method == "POST":
+        # retrieve username and password
         username = request.form.get("username").strip()
         password = request.form.get("password").strip()
 
+        # query for user in database
         users_query = Users.query.filter_by(username=username)
 
+        # validate password
         if users_query.count() > 0:
+            # if there are more than 0 users, check all users for the correct username, password match
             for user in users_query:
                 if check_password_hash(user.password, password):
+                    # save session's uuid as the user's uuid
                     session["uuid"] = user.uuid
+
+                    # send to the homepage
                     return redirect("/")
 
+        # send invalid information message
         return render_template("login.html", message="Account information is invalid.")
 
 
 @app.route("/register", methods=["GET", "POST"])
 def register():
+    """This function controls the register page. It displays the register.html page and takes in data from the register
+    form. The function will validate the username and password by: validating that the confirmation password matches the
+    original password, validating that the original password is not empty or contain illegal characters, validating that
+    the username is not empty or contain illegal characters, and checking if the username does not already exists in the
+    database. The request methods are GET and POST.
+
+    :return: None
+    """
     if request.method == "GET":
+        # display the register.html page
         return render_template("register.html")
+
     elif request.method == "POST":
+        # retrieve username, password, and the retyped password
         username = request.form.get("username").strip()
         password = request.form.get("password").strip()
         retype_password = request.form.get("retype_password").strip()
 
+        # validate that the original password matches the retyped password
         if password != retype_password:
-            return render_template("register.html", username=username, password=password, message="The confirmation password does not match your original password.")
+            return render_template("register.html", username=username, password=password,
+                                   message="The confirmation password does not match your original password.")
 
+        # check username and password does not contain invalid characters
         username_isvalid = validate(username, ascii_letters + whitespace)
         password_isvalid = validate(password, ascii_letters + whitespace + punctuation)
 
+        # validate username and password are correct or send back the appropriate message
         if not username_isvalid and not password_isvalid:
-            return render_template("register.html", username=username, password=password, message="The username and password contain invalid characters.")
+            return render_template("register.html", username=username, password=password,
+                                   message="The username and password contain invalid characters.")
         elif not username_isvalid:
-            return render_template("register.html", username=username, password=password, message="The username contain invalid characters.")
+            return render_template("register.html", username=username, password=password,
+                                   message="The username contain invalid characters.")
         elif not password_isvalid:
-            return render_template("register.html", username=username, password=password, message="The password contain invalid characters.")
+            return render_template("register.html", username=username, password=password,
+                                   message="The password contain invalid characters.")
 
+        # validate username is not already in database
         if Users.query.filter_by(username=username).count() != 0:
-            return render_template("register.html", username=username, password=password, message="The username is already in use.")
+            return render_template("register.html", username=username, password=password,
+                                   message="The username is already in use.")
 
+        # add user to the users database
         user = Users(username=username, password=generate_password_hash(password), stocks=json.dumps([]))
         db.session.add(user)
         db.session.commit()
 
+        # send to the login page
         return redirect("/login")
-
 
 
 @app.route("/add")
