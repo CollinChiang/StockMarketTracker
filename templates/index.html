@@ -1,0 +1,37 @@
+{% extends "layout.html" %}
+
+{% block page_name %}
+    Tracker
+{% endblock %}
+
+{% block body %}
+    <table>
+        <thead>
+            <tr>
+                <th>Name</th>
+                <th>Symbol</th>
+                <th>Price</th>
+                <th>Increase</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% if stock_data is None %}
+                <tr>
+                    <th></th>
+                    <th>Add New Trackers!</th>
+                    <th></th>
+                    <th></th>
+                </tr>
+            {% else %}
+                {% for data in stock_data %}
+                    <tr>
+                        <th>{{ data["name"] }}</th>
+                        <th>{{ data["symbol"] }}</th>
+                        <th>{{ data["price"] }}</th>
+                        <th>{{ data["percent_increase"] }}</th>
+                    </tr>
+                {% endfor %}
+            {% endif %}
+        </tbody>
+    </table>
+{% endblock %}
