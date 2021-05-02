@@ -1,0 +1,25 @@
+{% extends "layout.html" %}
+
+{% block page_name %}
+    Add
+{% endblock %}
+
+{% block body %}
+    <div class="form-container">
+        <div class="form-message">
+            {% if message %}
+                <h1>{{ message }}</h1>
+            {% else %}
+                <h1> </h1>
+            {% endif %}
+        </div>
+
+        <form class="fill-out" action="/add" method="post">
+            <div class="form-question">
+                <input class="form-input" name="symbol" placeholder="Symbol" autocomplete="off" autofocus type="text">
+            </div>
+
+            <button class="form-button" type="submit">Add</button>
+        </form>
+    </div>
+{% endblock %}
