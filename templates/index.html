@@ -15,7 +15,7 @@
             </tr>
         </thead>
         <tbody>
-            {% if stock_data is none %}
+            {% if stock_count == 0 %}
                 <tr>
                     <th></th>
                     <th>Add New Trackers!</th>
@@ -23,12 +23,12 @@
                     <th></th>
                 </tr>
             {% else %}
-                {% for data in stock_data %}
+                {% for stock in stocks %}
                     <tr>
-                        <th>{{ data["name"] }}</th>
-                        <th>{{ data["symbol"] }}</th>
-                        <th>{{ data["price"] }}</th>
-                        <th>{{ data["percent_increase"] }}</th>
+                        <th>{{ stock["name"] }}</th>
+                        <th>{{ stock["symbol"] }}</th>
+                        <th>{{ stock["price"] }}</th>
+                        <th>{{ stock["percent_increase"] }}</th>
                     </tr>
                 {% endfor %}
             {% endif %}
