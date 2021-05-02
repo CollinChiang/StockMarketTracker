@@ -1,22 +1,25 @@
-from flask import Flask, session, redirect
+from flask import Flask, session, redirect, render_template, request
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 import requests
 from werkzeug.security import check_password_hash, generate_password_hash
 from bs4 import BeautifulSoup
 from functools import wraps
+import json
 
 
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SESSION_PERMANENT"] = False
+app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 
 Session(app)
 
 db = SQLAlchemy(app)
 
 
-class User(db.Model):
+class Users(db.Model):
     uuid = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(64))
     password = db.Column(db.String(256))
@@ -35,6 +38,7 @@ def get_stock_data(symbol):
 
     stock_data = {
         "name": s_name,
+        "symbol": symbol,
         "price": s_price,
         "percent_increase": s_increase
     }
@@ -54,17 +58,34 @@ def login_required(method):
 @app.route("/")
 @login_required
 def index():
-    pass
+    query_users = Users.query.filter_by(uuid=session.get("user_id")).one()
+
+    stocks = json.loads(query_users.stocks)
+
+    stock_data = []
+    for stock in stocks:
+        stock_data.append(get_stock_data(stock))
+
+    render_template("index.html", stock_data=stock_data)
 
 
-@app.route("/login")
+@app.route("/login", methods=["GET", "POST"])
 def login():
-    pass
+    if request.method == "GET":
+        return render_template("login.html")
+    elif request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
 
 
 @app.route("/register")
 def register():
-    pass
+    if request.method == "GET":
+        return render_template("register.html")
+    elif request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        retype_password = request.form.get("retype_password")
 
 
 @app.route("/add")
