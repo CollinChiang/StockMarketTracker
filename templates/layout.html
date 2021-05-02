@@ -9,9 +9,9 @@
         <div id="nav-container">
             <nav class="navbar">
                 <ul>
-                    <li class="navbar-item"><a class="navbar-link" href="/index">SMT</a></li>
+                    <li class="navbar-item"><a class="navbar-link" href="/">SMT</a></li>
 
-                    {% if session.user_id %}
+                    {% if session.uuid %}
                         <li class="navbar-item"><a class="navbar-link" href="/add">Add</a></li>
                         <li class="navbar-item"><a class="navbar-link" href="/remove">Remove</a></li>
                         <li class="navbar-item"><a class="navbar-link" href="/logout">Logout</a></li>
