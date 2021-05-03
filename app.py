@@ -17,6 +17,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
+app.secret_key = "b'J\x05{K\xbf$\x02oQ\t\xa2\xe3\x04*\x8a1\xdc\x81\x11\x1f\x17\xecZ('"
 
 Session(app)
 
@@ -30,16 +31,30 @@ class Users(db.Model):
     stocks = db.Column(db.String(256))
 
 
-def get_stock_data(symbol):
+def get_stock_data(symbol: str) -> dict:
+    """This function uses bs4's BeautifulSoup to web-scrape the stock data from the yahoo finance stock page. The
+    function will gather the data on the stock's name, symbol, price, and percent increase and will return that data in
+    the form of a dictionary.
+
+    :param symbol: str representing the stock's symbol
+    :return: dict storing the stock's name, symbol, price, and percent increase
+    """
+    # generate url pointing to the stock symbol
     url = f'https://finance.yahoo.com/quote/{symbol}/key-statistics?p={symbol}'
 
+    # retrieve data from the url by requests, then create a BeautifulSoup object with that request data
     data = requests.get(url)
-    soup = BeautifulSoup(data.text, "html.parser")
+    soup = BeautifulSoup(data.text, "html.parser")  # parse using html parser
 
+    # retrieve the name, price, and percent increase of the stock
     s_name = soup.find("h1", {"data-reactid": "7"}).text.strip()
     s_price = soup.find("span", {"data-reactid": "50"}).text.strip()
     s_increase = soup.find("span", {"data-reactid": "51"}).text.strip()
 
+    # format the name to leave out the (Stock Symbol)
+    s_name = s_name[:len(s_name) - (len(symbol) + 2)]
+
+    # create a dictionary storing the stock's data
     stock_data = {
         "name": s_name,
         "symbol": symbol,
@@ -47,7 +62,30 @@ def get_stock_data(symbol):
         "percent_increase": s_increase
     }
 
+    # output the stock's data
     return stock_data
+
+
+def validate(string: str, arr: list) -> bool:
+    """This function takes in one string and an array of valid characters to validate the characters in the string. If
+    a character in the string variable does not match any value within the array of valid characters, then validate will
+    return False, signaling that the string variable contains illegal characters. If all characters in the string
+    variable matches that of the valid character array list, then validate will return True.
+
+    :param string: str representing value that needs to be validated
+    :param arr: list representing all of the valid characters
+    :return: bool if or if not the str contains valid characters
+    """
+    # invalidate empty strings
+    if string == "":
+        return False
+
+    # invalidate if str value contains illegal characters
+    for char in string:
+        # detect invalid characters
+        if char not in arr:
+            return False
+    return True
 
 
 def login_required(method):
@@ -57,16 +95,6 @@ def login_required(method):
             return redirect("/login")
         return method(*args, **kwargs)
     return confirmation
-
-
-def validate(string, arr):
-    if string == "":
-        return False
-
-    for char in string:
-        if char not in arr:
-            return False
-    return True
 
 
 @app.after_request
@@ -153,7 +181,7 @@ def register():
         username_isvalid = validate(username, ascii_letters + whitespace)
         password_isvalid = validate(password, ascii_letters + whitespace + punctuation)
 
-        # validate username and password are correct or send back the appropriate message
+        # validate username and password are correct and send back the appropriate message
         if not username_isvalid and not password_isvalid:
             return render_template("register.html", username=username, password=password,
                                    message="The username and password contain invalid characters.")
@@ -181,40 +209,101 @@ def register():
 @app.route("/add", methods=["GET", "POST"])
 @login_required
 def add():
+    """This function controls the add page. It displays the add.html page and takes data from the add form. The function
+    will include a stock symbol to a user's list os tracked stocks if the stock is valid and is not already in the list
+    of stocks. The function detects invalid stocks by attempting to retrieve the stock data and if a None Type attribute
+    is returned, then the page the web-scraper is searching for is invalid. The function will save the stock into the
+    user's list of stock if everything is valid.
+
+    :return: None
+    """
     if request.method == "GET":
+        # display the add.html page
         return render_template("add.html")
 
     if request.method == "POST":
+        # retrieve the stock symbol
         symbol = request.form.get("symbol").strip()
 
+        # validate stock page is there
         try:
             get_stock_data(symbol)
 
+            # retrieve the user's list of stocks
             user = Users.query.filter_by(uuid=session["uuid"]).one()
             stocks = json.loads(user.stocks)
 
+            # validate if the entered symbol is already in the user's list of stocks
             if symbol in stocks:
                 return render_template("add.html", message=f"You are already tracking the stock: {symbol}.")
 
+            # include the entered symbol into the list of stocks
             stocks.append(symbol)
+
+            # save the new list of stocks into the database
             user.stocks = json.dumps(stocks)
             db.session.commit()
 
+            # send to the homepage
+            return redirect("/")
+
+        # detect invalid stock page
         except AttributeError:
             return render_template("add.html", message="Stock symbol is not a valid symbol.")
 
+
+@app.route("/remove", methods=["GET", "POST"])
+@login_required
+def remove():
+    """This function controls the remove page. It displays the remove.html page and takes data from the remove form. The
+    function will allow a user to remove a stock tracker from the homepage. It first takes in a stock symbol from the
+    remove form, then removes the stock symbol from the user's list of stocks. If the stock symbol is not there (if the
+    user did not choose a symbol to remove and kept it on the default symbol) then the application will detect the
+    AttributeError and invalidate the symbol.
+
+    :return: None
+    """
+    if request.method == "GET":
+        # query for the user's list of stock symbols
+        symbols = json.loads(Users.query.filter_by(uuid=session["uuid"]).one().stocks)
+
+        # display the register.html page and render with the proper symbols
+        return render_template("remove.html", symbols=symbols)
+
+    elif request.method == "POST":
+        # detect non-selected symbol with an AttributeError
+        try:
+            # retrieve the stock symbol
+            symbol = request.form.get("symbol").strip()
+
+        except AttributeError:
+            # query for the user's list of stock symbols
+            symbols = json.loads(Users.query.filter_by(uuid=session["uuid"]).one().stocks)
+
+            # display the register.html with proper symbols and proper error message
+            return render_template("remove.html", symbols=symbols, message="Please choose a symbol.")
+
+        # query for the user's list of stocks
+        query = Users.query.filter_by(uuid=session["uuid"]).one()
+        stocks = json.loads(query.stocks)
+
+        # remove the stock from the list of stocks
+        stocks.remove(symbol)
+
+        # save the updated list of stocks to the database
+        query.stocks = json.dumps(stocks)
+        db.session.commit()
+
+        # send to the homepage
         return redirect("/")
 
 
-@app.route("/remove")
+@app.route("/logout")
 @login_required
-def remove():
-    pass
-
-
-def main():
-    app.run()
+def logout():
+    session.pop("uuid", None)
+    return redirect("/")
 
 
 if __name__ == '__main__':
-    main()
+    app.run()
