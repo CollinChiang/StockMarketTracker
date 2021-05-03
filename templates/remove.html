@@ -1,0 +1,31 @@
+{% extends "layout.html" %}
+
+{% block page_name %}
+    Remove
+{% endblock %}
+
+{% block body %}
+    <div class="form-container">
+        <div class="form-message">
+            {% if message %}
+                <h1>{{ message }}</h1>
+            {% else %}
+                <h1> </h1>
+            {% endif %}
+        </div>
+
+        <form class="fill-out" action="/remove" method="post">
+            <div class="form-question">
+                <select name="symbol">
+                    <option disabled selected>Symbol</option>
+
+                    {% for symbol in symbols %}
+                        <option value="{{ symbol }}">{{ symbol }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <button class="form-button" type="submit">Remove</button>
+        </form>
+    </div>
+{% endblock %}
