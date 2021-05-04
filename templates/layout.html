@@ -6,22 +6,24 @@
         <link href="/static/style.css" rel="stylesheet">
     </head>
     <body>
-        <div id="nav-container">
-            <nav class="navbar">
-                <ul>
-                    <li class="navbar-item"><a class="navbar-link" href="/">SMT</a></li>
+        <header id="header-container">
+            <div id="nav-container">
+                <nav class="navbar">
+                    <ul>
+                        <li class="navbar-item"><a class="navbar-link" href="/">SMT</a></li>
 
-                    {% if session.uuid %}
+                        {% if session.uuid %}
                         <li class="navbar-item"><a class="navbar-link" href="/add">Add</a></li>
                         <li class="navbar-item"><a class="navbar-link" href="/remove">Remove</a></li>
                         <li class="navbar-item"><a class="navbar-link" href="/logout">Logout</a></li>
-                    {% else %}
+                        {% else %}
                         <li class="navbar-item"><a class="navbar-link" href="/login">Login</a></li>
                         <li class="navbar-item"><a class="navbar-link" href="/register">Register</a></li>
-                    {% endif %}
-                </ul>
-            </nav>
-        </div>
+                        {% endif %}
+                    </ul>
+                </nav>
+            </div>
+        </header>
 
         <div id="main-container">
             {% block body %}{% endblock %}

@@ -10,9 +10,11 @@
             {% if message %}
                 <h1>{{ message }}</h1>
             {% else %}
-                <h1> </h1>
+                <h1 style="padding: 20px;"> </h1>
             {% endif %}
         </div>
+
+        <h1 id="page-name">Remove Tracker</h1>
 
         <form class="fill-out" action="/remove" method="post">
             <div class="form-question">

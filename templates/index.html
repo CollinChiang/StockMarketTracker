@@ -5,33 +5,35 @@
 {% endblock %}
 
 {% block body %}
-    <table>
-        <thead>
-            <tr>
-                <th>Symbol</th>
-                <th>Name</th>
-                <th>Price</th>
-                <th>Increase</th>
-            </tr>
-        </thead>
-        <tbody>
-            {% if stock_count == 0 %}
+    <div class="tracker-container">
+        <table class="tracker-table">
+            <thead class="tracker-head">
                 <tr>
-                    <th></th>
-                    <th><a href="/add">Add New Trackers!</a></th>
-                    <th></th>
-                    <th></th>
+                    <th class="tracker-item-label">Symbol</th>
+                    <th class="tracker-item-label">Name</th>
+                    <th class="tracker-item-label">Price</th>
+                    <th class="tracker-item-label">Increase</th>
                 </tr>
-            {% else %}
-                {% for stock in stocks %}
+            </thead>
+            <tbody class="tracker-main">
+                {% if stock_count == 0 %}
                     <tr>
-                        <th>{{ stock["symbol"] }}</th>
-                        <th>{{ stock["name"] }}</th>
-                        <th>{{ stock["price"] }}</th>
-                        <th>{{ stock["percent_increase"] }}</th>
+                        <th class="tracker-item"></th>
+                        <th class="tracker-item"><a href="/add">Add New Trackers!</a></th>
+                        <th class="tracker-item"></th>
+                        <th class="tracker-item"></th>
                     </tr>
-                {% endfor %}
-            {% endif %}
-        </tbody>
-    </table>
+                {% else %}
+                    {% for stock in stocks %}
+                        <tr>
+                            <th class="tracker-item">{{ stock["symbol"] }}</th>
+                            <th class="tracker-item">{{ stock["name"] }}</th>
+                            <th class="tracker-item">{{ stock["price"] }}</th>
+                            <th class="tracker-item">{{ stock["percent_increase"] }}</th>
+                        </tr>
+                    {% endfor %}
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
 {% endblock %}

@@ -9,7 +9,6 @@ import json
 from string import ascii_letters, whitespace, punctuation
 from tempfile import mkdtemp
 
-
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SESSION_FILE_DIR"] = mkdtemp()
@@ -88,12 +87,25 @@ def validate(string: str, arr: list) -> bool:
     return True
 
 
-def login_required(method):
+def login_required(method: any):
+    """This function is a function wrapper that will make sure that all application pages that require a logged-in user
+    force the user to first log in before continuing. The function works by checking if the session's uuid is not None,
+    if it is None, then it redirects the user to the login function/page.
+
+    :param method: this is what the function will wrap
+    :return: a redirect or the method
+    """
+    # declare what happens wraps the method
     @wraps(method)
     def confirmation(*args, **kwargs):
+        # sends user to the login page if the session does not have the user's uuid
         if session.get("uuid") is None:
             return redirect("/login")
+
+        # otherwise, continue on with the method
         return method(*args, **kwargs)
+
+    # continue on with the method
     return confirmation
 
 
@@ -106,14 +118,21 @@ def after_request(response):
 @app.route("/")
 @login_required
 def index():
-    query_users = Users.query.filter_by(uuid=session["uuid"]).one()
+    """This function controls the homepage. It displays the index.html page and displays all stocks in the user's list
+    of stocks. It shows the stock's symbol, name, price, and percent increase.
 
-    stocks = json.loads(query_users.stocks)
+    :return: None
+    """
+    # query for the user's list of stocks
+    stocks = json.loads(Users.query.filter_by(uuid=session["uuid"]).one().stocks)
 
+    # store the stock data in a list
     stock_data = []
     for stock in stocks:
+        # web-scrape stock data from yahoo finance stock page
         stock_data.append(get_stock_data(stock))
 
+    # display the html page with the stock data
     return render_template("index.html", stocks=stock_data, stock_count=len(stocks))
 
 
@@ -223,7 +242,7 @@ def add():
 
     if request.method == "POST":
         # retrieve the stock symbol
-        symbol = request.form.get("symbol").strip()
+        symbol = request.form.get("symbol").strip().upper()
 
         # validate stock page is there
         try:
@@ -301,7 +320,15 @@ def remove():
 @app.route("/logout")
 @login_required
 def logout():
+    """This function logs the user out of their account. It just clears the session's uuid and moves the user back to
+    the login page.
+
+    :return: None
+    """
+    # clear the session's uuid
     session.pop("uuid", None)
+
+    # send the user to the homepage (which then goes to the login page)
     return redirect("/")
 
 
