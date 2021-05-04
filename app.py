@@ -2,13 +2,14 @@ from flask import Flask, session, redirect, render_template, request
 from flask_session import Session
 from flask_sqlalchemy import SQLAlchemy
 import requests
-from werkzeug.security import check_password_hash, generate_password_hash
 from bs4 import BeautifulSoup
-from functools import wraps
-import json
+from werkzeug.security import check_password_hash, generate_password_hash
 from string import ascii_letters, whitespace, punctuation
+import json
+from functools import wraps
 from tempfile import mkdtemp
 
+# declare app as flask application
 app = Flask(__name__)
 app.config["TEMPLATES_AUTO_RELOAD"] = True
 app.config["SESSION_FILE_DIR"] = mkdtemp()
@@ -18,8 +19,10 @@ app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
 app.secret_key = b"J\x05{K\xbf$\x02oQ\t\xa2\xe3\x04*\x8a1\xdc\x81\x11\x1f\x17\xecZ("
 
+# include flask as a session
 Session(app)
 
+# create database
 db = SQLAlchemy(app)
 
 
