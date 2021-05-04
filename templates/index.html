@@ -5,8 +5,10 @@
 {% endblock %}
 
 {% block body %}
+    <!-- tracker table -->
     <div class="tracker-container">
         <table class="tracker-table">
+            <!-- columns: symbol, name, price, and a percent increase -->
             <thead class="tracker-head">
                 <tr>
                     <th class="tracker-item-label">Symbol</th>
@@ -15,7 +17,10 @@
                     <th class="tracker-item-label">Increase</th>
                 </tr>
             </thead>
+
+            <!-- dynamically create rows for stocks -->
             <tbody class="tracker-main">
+                <!-- redirect to add page if user has no stocks -->
                 {% if stock_count == 0 %}
                     <tr>
                         <th class="tracker-item"></th>
@@ -23,6 +28,8 @@
                         <th class="tracker-item"></th>
                         <th class="tracker-item"></th>
                     </tr>
+
+                <!-- shows all of the stocks in rows -->
                 {% else %}
                     {% for stock in stocks %}
                         <tr>

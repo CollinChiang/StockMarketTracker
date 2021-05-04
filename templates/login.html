@@ -5,7 +5,9 @@
 {% endblock %}
 
 {% block body %}
+    <!-- login page -->
     <div class="form-container">
+        <!-- show error message if there is an error -->
         <div class="form-message">
             {% if message %}
                 <h1>{{ message }}</h1>
@@ -14,8 +16,10 @@
             {% endif %}
         </div>
 
+        <!-- display page name -->
         <h1 id="page-name">Login</h1>
 
+        <!-- login form -->
         <form class="fill-out" action="/login" method="post">
             <div class="form-question">
                 <input class="form-input" name="username" placeholder="Username" autocomplete="off" autofocus type="text">

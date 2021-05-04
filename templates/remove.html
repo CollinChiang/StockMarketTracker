@@ -5,7 +5,9 @@
 {% endblock %}
 
 {% block body %}
+    <!-- remove page -->
     <div class="form-container">
+        <!-- show error message if there is an error -->
         <div class="form-message">
             {% if message %}
                 <h1>{{ message }}</h1>
@@ -14,10 +16,13 @@
             {% endif %}
         </div>
 
+        <!-- display page name -->
         <h1 id="page-name">Remove Tracker</h1>
 
+        <!-- remove form -->
         <form class="fill-out" action="/remove" method="post">
             <div class="form-question">
+                <!-- multi-selection as answers to the form -->
                 <select class="form-multi-selection" name="symbol">
                     <option disabled selected>Symbol</option>
 
