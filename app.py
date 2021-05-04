@@ -112,6 +112,18 @@ def login_required(method: any):
     return confirmation
 
 
+@app.after_request
+def after_request(response):
+    """This function will clear any cache data when the user refreshes or re-enters the website.
+
+    :param response: any
+    :return: any
+    """
+    # clear data
+    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
+    return response
+
+
 @app.route("/")
 @login_required
 def index():
