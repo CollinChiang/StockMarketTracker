@@ -1,13 +1,6 @@
-
-.header-container {
-    background-color: coral;
-
-}
-
 .navbar {
     padding: 10px;
-    background-color: aquamarine;
-
+    background-color: #7fffd4;
 }
 
 .navbar-item {
@@ -15,13 +8,20 @@
     padding-right: 55px;
     font-size: 30px;
     display: inline;
-
 }
 
 .navbar-link {
+    color: #000000;
     text-decoration: none;
-    color: black;
+}
 
+.navbar-link:hover {
+    text-decoration: underline;
+}
+
+#page-name {
+    color: #000000;
+    font-size: 30px;
 }
 
 .form-container {
@@ -30,35 +30,66 @@
     padding-top: 50px;
     padding-bottom: 50px;
     text-align: center;
-
 }
 
 .form-message {
     font-size: 20px;
+}
 
+.form-question {
+    padding: 5px;
+}
+
+.form-input {
+    width: 10%;
+    min-width: 100px;
+    max-width: 250px;
+    height: 30px;
+    font-size: 20px;
+    border-radius: 10px;
+    border-color: #d3d3d3;
+    outline: none;
+}
+
+.form-multi-selection {
+    width: 10%;
+    min-width: 100px;
+    max-width: 150px;
+    height: 30px;
+    font-size: 20px;
+    border-radius: 10px;
+    border-color: #d3d3d3;
+    outline: none;
+}
+
+.form-button {
+    width: 90px;
+    height: 30px;
+    font-size: 20px;
+    border-radius: 12px;
+    outline: none;
+}
+
+.form-button:hover {
+    background-color: #00FFFF;
 }
 
 .tracker-container {
     padding: 30px;
-
 }
 
 .tracker-table {
     margin-left: auto;
     margin-right: auto;
-
 }
 
 .tracker-head {
     font-size: 25px;
-
 }
 
 .tracker-item-label {
-    color: light-blue;
-    text-align: center;
     padding-bottom: 10px;
-
+    text-align: center;
 }
 
 .tracker-item {
@@ -66,5 +97,4 @@
     padding-right: 20px;
     font-size: 20px;
     text-align: left;
-
 }
