@@ -119,7 +119,7 @@ def after_request(response):
     :param response: any
     :return: any
     """
-    # clear data
+    # clear cache data
     response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
     return response
 
