@@ -16,7 +16,7 @@ app.config["SESSION_PERMANENT"] = False
 app.config["SESSION_TYPE"] = "filesystem"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///database.db"
-app.secret_key = "b'J\x05{K\xbf$\x02oQ\t\xa2\xe3\x04*\x8a1\xdc\x81\x11\x1f\x17\xecZ('"
+app.secret_key = b"J\x05{K\xbf$\x02oQ\t\xa2\xe3\x04*\x8a1\xdc\x81\x11\x1f\x17\xecZ("
 
 Session(app)
 
@@ -107,12 +107,6 @@ def login_required(method: any):
 
     # continue on with the method
     return confirmation
-
-
-@app.after_request
-def after_request(response):
-    response.headers["Cache-Control"] = "no-cache, no-store, must-revalidate"
-    return response
 
 
 @app.route("/")
